@@ -1,0 +1,2 @@
+# DjangoBreakfastShop
+使用django建立一個早餐店訂餐系統
