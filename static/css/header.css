@@ -1,0 +1,45 @@
+/*#region ---------- 通用設定 ----------*/
+/* 主色調設定 */
+:root {
+    /* 主色: 橘色 */
+    --color-primary: #ff855e;
+    /* 次要色: 米黃色 */
+    --color-secondary: #ffd5a4;
+    /* 灰色 */
+    --color-gray: #666666;
+    /* 黑色 */
+    --color-dark: #303030;
+    /* 白色 */
+    --color-white: #ffffff;
+}
+* {
+    margin: 0;
+    padding: 0;
+}
+html,
+body {
+    height: 100vh;
+}
+.text-center {
+    text-align: center;
+}
+.header {
+    position: fixed;
+    top: 0;
+    background-color: var(--color-secondary);
+    width: 100%;
+    /* height: 72px; */
+    z-index: 100;
+    font-size: 20px;
+}
+.body::-webkit-scrollbar {
+    display: none;
+}
+.footer {
+    position: fixed;
+    bottom: 0;
+    background-color: var(--color-secondary);
+    width: 100%;
+    /* height: 72px; */
+    z-index: 100;
+}

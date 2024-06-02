@@ -1,0 +1,314 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<!-- CSS -->
+<link href="{% static 'css/products.css' %}" rel="stylesheet">
+<!-- 主頁 -->
+<div class="">
+    <!-- 最上方標題導覽列 -->
+    <div class="header">
+        <nav class="navbar navbar-expand-lg navbar-light *bg-c-secondary">
+            <div class="container *container-fluid">
+                <span class="navbar-brand m-0" style="width: 220px" id="logo"
+                    ><img class="logo" src="./Img/logo.svg" style="width: 100%" alt=""
+                /></span>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0" id="navList">
+                        <!--renderNavList()-->
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <!-- 中間主要內容 -->
+    <div class="main-content">
+        <!-- 品項選單(希望固定) -->
+        <div class="container">
+            <div class="d-flex py-2 justify-content-center">
+                <!-- <div class="leftArrow"><img src="./Img/PC/Arrow circle up.png" alt="" /></div> -->
+                <div class="tagArea mx-3">
+                    <ul class="tagList">
+                        <li>
+                            <input type="radio" class="btn-check" name="分類標籤" id="tag全部" value="全部" autocomplete="off" checked />
+                            <label class="btn btn-cat-tag" for="tag全部">全部</label>
+                        </li>
+                        <li>
+                            <input type="radio" class="btn-check" name="分類標籤" id="tag蛋餅" value="蛋餅" autocomplete="off" />
+                            <label class="btn btn-cat-tag" for="tag蛋餅">蛋餅</label>
+                        </li>
+                        <li>
+                            <input type="radio" class="btn-check" name="分類標籤" id="tag吐司" value="吐司" autocomplete="off" />
+                            <label class="btn btn-cat-tag" for="tag吐司">吐司</label>
+                        </li>
+                        <li>
+                            <input type="radio" class="btn-check" name="分類標籤" id="tag漢堡" value="漢堡" autocomplete="off" />
+                            <label class="btn btn-cat-tag" for="tag漢堡">漢堡</label>
+                        </li>
+                        <li>
+                            <input type="radio" class="btn-check" name="分類標籤" id="tag沙拉" value="沙拉" autocomplete="off" />
+                            <label class="btn btn-cat-tag" for="tag沙拉">沙拉</label>
+                        </li>
+                        <li>
+                            <input type="radio" class="btn-check" name="分類標籤" id="tag點心" value="點心" autocomplete="off" />
+                            <label class="btn btn-cat-tag" for="tag點心">點心</label>
+                        </li>
+                        <li>
+                            <input type="radio" class="btn-check" name="分類標籤" id="tag飲品" value="飲品" autocomplete="off" />
+                            <label class="btn btn-cat-tag" for="tag飲品">飲品</label>
+                        </li>
+                    </ul>
+                </div>
+                <!-- <div class="rightArrow"><img src="./Img/PC/Arrow circle down.png" alt="" /></div> -->
+            </div>
+        </div>
+
+        <!-- 廣告和菜單(可捲動區塊) -->
+        <div class="">
+            {% comment %} 菜單 {% endcomment %}
+            <div class="menu container pb-6" id="menu">
+                {% for category in category_products %}
+                <div name="foodCat" data-cat="{{ category.name }}">
+                    <div class="catTitle my-3" data-cat="{{ category.name }}">
+                        <span class="h4 fw-bolder">{{ category.name }}</span>
+                    </div>
+                    <div class="menu-cards row g-3" data-cat="{{ category.name }}">
+                    {% for product in category.products %}
+                    <div class="col-12 col-md-6 col-xl-4 position-relative" >
+                        <div class="foodCard {{ product.isSoldOut|yesno:"soldout," }}"
+                            onclick="showProductModal('{{ product.catId }}', '{{ product.id }}')">
+                            <div class="d-flex flex-column w-60">
+                                <p class="h5">{{ product.name }}</p>
+                                <p class="h6">{{ product.comment }}</p>
+                                <p class="h5 mt-auto">${{ product.price }}</p>
+                            </div>
+                            <div class="d-inline-block ms-auto">
+                                <img class="menuCardImg" src="{{ product.img }}" alt="" />
+                            </div>
+                        </div>
+                        <div class="soldoutMask {{ product.isSoldOut|yesno:",d-none" }}">已售完</div>
+                    </div>
+                    {% endfor %}
+                    </div>
+                {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 頁尾 -->
+    <div class="footer py-2">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="border-left fw-bolder">
+                    <span class="ms-2">訂單小計</span>
+                    <span class="text-danger" id="footerTotalPrice">$0</span>
+                </div>
+                <div>
+                    <button class="btn btn-chkOrder" onclick="showCartModal()">查看購物車</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal擺放區塊 -->
+<div>
+    <!-- 品項Modal -->
+    <div class="modal fade" id="productModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header d-block">
+                    <img src="./Img/PC/image-1.png" alt="" />
+                    <button type="button" class="btn-close float-end float" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- 介紹 -->
+                    <div>
+                        <h5 class="fw-bolder">容顏花生起司牛肉堡</h5>
+                        <p class="h6 fw-light">巧克力花生醬+起司</p>
+                        <p class="h6 fw-light">人氣推薦</p>
+                        <p class="h5">$85</p>
+                    </div>
+                    <!-- 選項 -->
+                    <div>
+                        Lorem ipsum dolor sit amet consectetur, adipisicing elit. Adipisci obcaecati possimus rem perspiciatis facilis, praesentium
+                    </div>
+
+                    <hr />
+                    <!-- 備註 -->
+                    <div>
+                        <p class="h6">備註</p>
+                        <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer flex-column">
+                    <!-- 數量 -->
+
+                    <div class="d-flex align-items-center">
+                        <button class="btn rounded-circle btn-sm btn-add"><i class="fa-solid fa-minus small"></i></button>
+                        <span class="mx-4">1</span>
+                        <button class="btn rounded-circle btn-sm btn-minus"><i class="fa-solid fa-plus small"></i></button>
+                    </div>
+
+                    <!-- 加入購物車 -->
+                    <button type="button" class="btn btn-addToCart my-1" data-bs-dismiss="modal">
+                        <span class=""> 加入購物車</span>
+                        <span class="">($85)</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 購物車Modal -->
+    <div class="modal fade" id="cartModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header d-block pb-1">
+                    <button type="button" class="btn-close float-end float" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h5 class="text-center fw-bold">購物車資訊</h5>
+                </div>
+                <div class="modal-body"></div>
+                <div class="modal-footer flex-column">
+                    <!-- 加入購物車 -->
+                    <button type="button" class="btn btn-addToCart my-1" onclick="submitCart()">
+                        <span class=""> 送出訂單</span>
+                        <span id="tempCartTotalPrice">($275)</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header border-0 pb-1">
+                    <button type="button" class="btn-close float-end float" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body"></div>
+            </div>
+        </div>
+    </div>
+    <!-- 歷史訂單Modal -->
+    <div class="modal fade" id="userOrdersModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header d-block pb-1">
+                    <button type="button" class="btn-close float-end float" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h5 class="text-center fw-bold">歷史訂單</h5>
+                </div>
+                <div class="modal-body">
+                    <!-- renderUserOrdersModal() -->
+                </div>
+                <div class="modal-footer flex-column border-0"></div>
+            </div>
+        </div>
+    </div>
+    <!-- 廣告Modal -->
+    <div class="modal fade" id="adModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content adBackground">
+                <div class="modal-header border-0 pb-0">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body d-flex flex-wrap border-0 pt-0">
+                    <div
+                        class="d-flex flex-column justify-content-center align-items-center align-items-lg-end col-12 col-lg-6 adsContent g-5 fw-bold fs-3"
+                    >
+                        <span class="">Catch Breakfast</span>
+                        <span class="">快取早餐 歡慶上線</span>
+                        <span>即日起至12/31</span>
+                        <span>自備環保餐具</span>
+                        <span>飲料無限暢飲</span>
+                    </div>
+                    <div class="col-12 col-lg-6 adsImg">
+                        <img src="./Img/PC/image-9.png" alt="" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 導覽Modal -->
+    <div class="modal fade" id="guideModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content" style="min-height: 360px">
+                <div class="modal-header d-block pb-1 position-relative border-0">
+                    <button type="button" class="btn-close position-absolute" data-bs-dismiss="modal" aria-label="Close" style="right: 1.5rem"></button>
+                    <h5 class="text-center fw-bold">功能介紹</h5>
+                </div>
+                <div class="modal-body">
+                    <ul class="nav nav-tabs row-cols-3" id="myTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link w-100 active" data-bs-toggle="tab" data-bs-target="#guideOnline" type="button" role="tab">
+                                線上點餐
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link w-100" data-bs-toggle="tab" data-bs-target="#guideTable" type="button" role="tab">桌邊點餐</button>
+                        </li>
+
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link w-100" data-bs-toggle="tab" data-bs-target="#guideBack" type="button" role="tab">後台管理</button>
+                        </li>
+                    </ul>
+                    <div class="tab-content" id="myTabContent">
+                        <div class="tab-pane fade show active" id="guideOnline" role="tabpanel">
+                            <div class="d-flex flex-column justify-content-center align-items-center pt-4">
+                                <ul>
+                                    <li>登入與註冊會員</li>
+                                    <li>瀏覽精緻菜單</li>
+                                    <li>提供點餐服務</li>
+                                    <li>調整購物車內容</li>
+                                    <li>查詢歷史訂單</li>
+                                </ul>
+                                <span
+                                    >可使用demo帳號
+                                    <span class="finger" onclick="goToLoginModalWithName('小明')"
+                                        ><b><u>小明</u></b></span
+                                    ></span
+                                >
+                                <span>進行操作體驗</span>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="guideTable" role="tabpanel">
+                            <div class="d-flex flex-column justify-content-center align-items-center pt-4">
+                                <div class="text-center">請掃描QR Code後進行點餐</div>
+                                <div class="mt-3" id="qrCode"></div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="guideBack" role="tabpanel">
+                            <div class="d-flex flex-column justify-content-center align-items-center pt-4">
+                                <ul>
+                                    <li>出餐管理(顯示即時訂單)</li>
+                                    <li>菜單管理(新增、調整與停售)</li>
+                                    <li>營業狀況之圖表分析</li>
+                                </ul>
+                                <span
+                                    >可使用demo帳號
+                                    <span class="finger" onclick="goToLoginModalWithName('阿姨')"
+                                        ><b><u>阿姨</u></b></span
+                                    ></span
+                                >
+                                <span>進行操作體驗</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer flex-column border-0"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'js/products.js' %}"></script>
+<script>
+    $(function () {
+        $("#adModal").modal("show");
+    });
+    // open productModal modal
+</script>
+
+{% endblock content %}
