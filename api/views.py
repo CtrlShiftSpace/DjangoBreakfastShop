@@ -32,14 +32,7 @@ class CategoriesViewSet(viewsets.ModelViewSet):
             },
             required=['name', 'is_active'],
         ),
-        responses={201: CategoriesSerializer()}
     )
-    def create(self, request, *args, **kwargs):
-        # action = request.data.get('action', None)
-        # if action == 'special_action':
-        #     pass
-
-        return super().create(request, *args, **kwargs)
 
 
 class ProductViewSet(viewsets.ModelViewSet):

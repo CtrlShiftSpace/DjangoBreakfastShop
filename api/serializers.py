@@ -14,9 +14,23 @@ class CategoriesSerializer(serializers.ModelSerializer):
 
 
 class ProductSerializer(serializers.HyperlinkedModelSerializer):
+    categories = serializers.PrimaryKeyRelatedField(many=True, queryset=Categories.objects.all())
     class Meta:
         model = Products
-        fields = ['id', 'name', 'price', 'content', 'is_active']
+        fields = ['id', 'name', 'price', 'content', 'is_active', 'categories']
+
+    def create(self, validated_data):
+        categories_data = validated_data.pop('categories')
+        products = Products.objects.create(**validated_data)
+        for category_data in categories_data:
+            if type(category_data) is Categories:
+                category_id = category_data.id
+            else:
+                category_id = category_data
+            category = Categories.objects.get(id=category_id)
+            products.categories.add(category)
+
+        return products
 
 class AdditionSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
