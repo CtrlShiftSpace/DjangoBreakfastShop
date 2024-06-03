@@ -1,14 +1,46 @@
 from django.shortcuts import render
 from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 from django.contrib.auth.models import User
-from .serializers import ProductSerializer, UserSerializer, AdditionSerializer
-from products.models import Products, Additions
+from .serializers import CategoriesSerializer, ProductSerializer, UserSerializer, AdditionSerializer
+from products.models import Categories, Products, Additions
 
 
 class UserViewSet(viewsets.ModelViewSet):
+    permission_classes = (IsAuthenticated,)
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
+class CategoriesViewSet(viewsets.ModelViewSet):
+    queryset = Categories.objects.all().order_by('name')
+    serializer_class = CategoriesSerializer
+
+    def list(self, request, *args, **kwargs):
+        queryset = Categories.objects.all().order_by('name')
+        serializer = CategoriesSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    @swagger_auto_schema(
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'name': openapi.Schema(type=openapi.TYPE_STRING, description='類別名稱'),
+                'is_active': openapi.Schema(type=openapi.TYPE_BOOLEAN, description='是否啟用'),
+            },
+            required=['name', 'is_active'],
+        ),
+        responses={201: CategoriesSerializer()}
+    )
+    def create(self, request, *args, **kwargs):
+        # action = request.data.get('action', None)
+        # if action == 'special_action':
+        #     pass
+
+        return super().create(request, *args, **kwargs)
+
 
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Products.objects.all().order_by('name')

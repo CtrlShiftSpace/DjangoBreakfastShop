@@ -343,7 +343,6 @@ function catIdToCatName(catId) {
 
 //取得菜單資料
 function getMenu() {
-
     axios.get(`${urlDomain}/cats?_embed=products`).then(function (response) {
         theMenu = response.data;
         theProducts = theMenu.reduce((a, b) => [...a, ...b.products], [])
