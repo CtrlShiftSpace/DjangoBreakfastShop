@@ -33,6 +33,8 @@ class CategoriesViewSet(viewsets.ModelViewSet):
             required=['name', 'is_active'],
         ),
     )
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
 
 
 class ProductViewSet(viewsets.ModelViewSet):
