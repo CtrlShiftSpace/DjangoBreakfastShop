@@ -17,7 +17,7 @@ class ProductSerializer(serializers.ModelSerializer):
     categories = serializers.PrimaryKeyRelatedField(many=True, queryset=Categories.objects.all())
     class Meta:
         model = Products
-        fields = ['id', 'name', 'price', 'content', 'is_active', 'categories']
+        fields = '__all__'
 
     def create(self, validated_data):
         categories_data = validated_data.pop('categories')

@@ -3,7 +3,9 @@ from .models import *
 
 def index(request):
 
-    ret_list = Categories.catmanger.get_all_products()
+    category_products = Categories.catmanger.get_all_products()
+    return render(request, 'products/index.html', {'category_products': category_products})
+
     category_products = [
         {
             "id": "c01",

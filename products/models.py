@@ -13,15 +13,20 @@ class CategoriesManager(models.Manager):
         all_categories = Categories.objects.only('id', 'name', 'is_active').order_by(order_field)
         for category in all_categories:
             products = category.products_set.all().annotate(product_id=F('id'))
-
             prod_list = []
             for product in products:
+                # 檢查商品圖片
+                img_url = ""
+                if product.img and hasattr(product.img, 'url'):
+                    img_url = product.img.url
+
                 prod_dict = {
                     'product_id': product.product_id,
                     'name': product.name,
                     'price': product.price,
                     'content': product.content,
-                    'addition_ids': product.additions_set.only('id').values(),
+                    'img': img_url,
+                    'addition_ids': product.additions_set.only('id').values_list('id'),
                 }
                 prod_list.append(prod_dict)
 
@@ -77,6 +82,7 @@ class Products(models.Model):
     name = models.CharField(max_length=255)
     price = models.FloatField(default=0)
     content = models.TextField(null=True)
+    img = models.ImageField(upload_to='static/', null=True, blank=True)
     is_active = models.BooleanField(default=False)
     categories = models.ManyToManyField(Categories, through='CategoryProducts')
     created_at = models.DateTimeField(auto_now_add=True)
