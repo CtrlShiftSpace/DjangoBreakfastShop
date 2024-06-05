@@ -3,6 +3,7 @@ from .models import *
 
 def index(request):
 
+    ret_list = Categories.catmanger.get_all_products()
     category_products = [
         {
             "id": "c01",

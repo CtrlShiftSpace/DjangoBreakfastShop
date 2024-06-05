@@ -353,24 +353,14 @@ function getMenu() {
 }
 //取得食品附加項目
 function getFoodAddition() {
-    var token = "";
-    axios.post(`/api/token/`, {
-        username: "admin",
-        password: 'cl3ru4au4a83',
-    }).then(function (response) {
-        token = response.data.access;
-        const config = {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
+    const config = {
+        headers: {
+            'Content-Type': 'application/json'
         }
-        axios.get(`/api/additions/`,config)
-            .then(function (response) {
-                theFoodAdditions = response.data;
-            }).catch(function (error) {
-                console.log('error', error);
-            });
+    }
+    axios.get(`/api/additions/categories/`,config)
+    .then(function (response) {
+        theFoodAdditions = response.data;
     }).catch(function (error) {
         console.log('error', error);
     });

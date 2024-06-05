@@ -1,10 +1,70 @@
 from django.db import models
+from django.db.models import F
+
+# 商品分類 Manager
+class CategoriesManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset()
+
+    # 取得類別下所有商品
+    def get_all_products(self):
+        order_field = 'id'
+        ret_list = []
+        all_categories = Categories.objects.only('id', 'name', 'is_active').order_by(order_field)
+        for category in all_categories:
+            products = category.products_set.all().annotate(product_id=F('id'))
+
+            prod_list = []
+            for product in products:
+                prod_dict = {
+                    'product_id': product.product_id,
+                    'name': product.name,
+                    'price': product.price,
+                    'content': product.content,
+                    'addition_ids': product.additions_set.only('id').values(),
+                }
+                prod_list.append(prod_dict)
+
+            cat_dict = {
+                'id': category.id,
+                'name': category.name,
+                'products': prod_list,
+            }
+            ret_list.append(cat_dict)
+            # print(additions)
+        return ret_list
+
+# 商品分類 Manager
+class AdditionCategoriesManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset()
+
+    # 取得類別下所有商品
+    def get_all_additions(self):
+        order_field = 'id'
+        ret_list = []
+        all_addi_cat = AdditionCategories.objects.order_by(order_field)
+        for addi_cat in all_addi_cat:
+            addi_dict = {
+                'id': addi_cat.id,
+                'name': addi_cat.name,
+                'is_multiple': addi_cat.is_multiple,
+                'is_active': addi_cat.is_active,
+                'additions': addi_cat.additions_set.values('id', 'name', 'is_active'),
+            }
+            ret_list.append(addi_dict)
+            # print(additions)
+        return ret_list
 
 # 商品分類
 class Categories(models.Model):
     name = models.CharField(max_length=64, unique=True)
     # 是否啟用
     is_active = models.BooleanField(default=False)
+    # 預設的Manager
+    objects = models.Manager()
+    # 另外建立一個新的Manager
+    catmanger = CategoriesManager()
 
     class Meta:
         db_table = 'categories'
@@ -43,9 +103,16 @@ class AdditionCategories(models.Model):
     # 是否可多選
     is_multiple = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
+    # 預設的Manager
+    objects = models.Manager()
+    # 另外建立一個新的Manager
+    addi_catmanger = AdditionCategoriesManager()
 
     class Meta:
         db_table = 'addition_categories'
+
+    def __str__(self):
+        return self.name
 
 
 # 商品追加項目

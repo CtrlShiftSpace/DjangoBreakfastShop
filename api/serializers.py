@@ -1,8 +1,8 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from products.models import Categories, Products, Additions
+from products.models import Categories, Products, Additions, AdditionCategories
 
-class UserSerializer(serializers.HyperlinkedModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['username', 'email', 'is_staff']
@@ -13,7 +13,7 @@ class CategoriesSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'is_active']
 
 
-class ProductSerializer(serializers.HyperlinkedModelSerializer):
+class ProductSerializer(serializers.ModelSerializer):
     categories = serializers.PrimaryKeyRelatedField(many=True, queryset=Categories.objects.all())
     class Meta:
         model = Products
@@ -22,18 +22,19 @@ class ProductSerializer(serializers.HyperlinkedModelSerializer):
     def create(self, validated_data):
         categories_data = validated_data.pop('categories')
         products = Products.objects.create(**validated_data)
-        for category_data in categories_data:
-            if type(category_data) is Categories:
-                category_id = category_data.id
-            else:
-                category_id = category_data
-            category = Categories.objects.get(id=category_id)
-            products.categories.add(category)
-
+        # 關聯欄位
+        products.categories.add(*categories_data)
         return products
 
-class AdditionSerializer(serializers.HyperlinkedModelSerializer):
+class AdditionCategoriesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AdditionCategories
+        fields = ['id', 'name', 'is_multiple', 'is_active']
+
+class AdditionSerializer(serializers.ModelSerializer):
+    products = serializers.PrimaryKeyRelatedField(many=True, queryset=Products.objects.all())
+    addition_categories = serializers.PrimaryKeyRelatedField(queryset=AdditionCategories.objects.all())
     class Meta:
         model = Additions
-        fields = ['id', 'name', 'price', 'is_active']
+        fields = ['id', 'name', 'price', 'is_active', 'products', 'addition_categories']
 
