@@ -1,5 +1,5 @@
 //#region ------------------------------ 全域變數 ------------------------------
-let theMenu = []; //存放菜單的陣列(sort by catId)
+let menuList = []; //存放菜單的陣列(sort by catId)
 let theProducts = []; //存放菜單的陣列(sort by productId)
 let theUserOrders = []; //客人的歷史訂單
 let theFoodAdditions = []; //食物附加選項
@@ -21,6 +21,8 @@ $(function () {
     $("#productModal").on("change", "#foodAdditionOptions input.foodAdditionOption", function () {
         btnAdditionChange();
     });
+
+    $("#menu").on("click", ".foodCard", showProductModal);
 
 
 
@@ -79,7 +81,8 @@ function goToBackstage() {
     window.location.href = 'backstage.html';
 }
 //彈出商品Modal
-function showProductModal(catId, productId) {
+function showProductModal() {
+    var productId = $(this).attr("data-product-id");
     renderProductModal(productId);
     $('#productModal').modal('show');
 }
@@ -117,7 +120,7 @@ function filterMenu() {
 }
 //加入購物車
 function addToCart(catId, productId) {
-    const products = theMenu.find(x => x.id == catId).products.find(x => x.id == productId);
+    const products = menuList.find(x => x.id == catId).products.find(x => x.id == productId);
     const carts = getCarts();
     const qty = parseInt($('#tempProductAmount').text());
     const comment = $('#tempProductComment').val();
@@ -333,7 +336,7 @@ function additionIdToName(additionId) {
 
 //catIdToCatName
 function catIdToCatName(catId) {
-    let catName = Object.values(theMenu).find(item => item.id == catId)?.name;
+    let catName = Object.values(menuList).find(item => item.id == catId)?.name;
     return catName ? catName : '';
 }
 //#endregion
@@ -343,9 +346,9 @@ function catIdToCatName(catId) {
 
 //取得菜單資料
 function getMenu() {
-    axios.get(`${urlDomain}/cats?_embed=products`).then(function (response) {
-        theMenu = response.data;
-        theProducts = theMenu.reduce((a, b) => [...a, ...b.products], [])
+    axios.get(`/api/categories/?show_type=1`).then(function (response) {
+        menuList = response.data;
+        theProducts = menuList.reduce((a, b) => [...a, ...b.products], [])
         renderMenu();
     }).catch(function (error) {
         console.log('error', error);
@@ -459,7 +462,7 @@ function postCartOrder(order) {
 //渲染菜單
 function renderMenu() {
     let contents = [];
-    theMenu.forEach(catObj => {
+    menuList.forEach(catObj => {
         const catOutline1 = `<div name="foodCat" data-cat='${catObj.name}' >`;
         let catTitle = `<div class="catTitle my-3" data-cat='${catObj.name}'><span class="h4 fw-bolder">${catObj.name}</span></div>`;
         let catContent1 = `<div class="menu-cards row g-3" data-cat='${catObj.name}'>`;
@@ -488,65 +491,28 @@ function renderMenu() {
 }
 //渲染產品Modal
 function renderProductModal(productId) {
-    const myProductObj = theProducts.find(productObj => productObj.id == productId);
-    const { catId, id, name, comment, price, img, isSoldOut, additionIds } = myProductObj;
-    //食物的附加選項
-    let additionContents = additionIds.map(additionId => {
-        let addObj = theFoodAdditions.find(x => x.id == additionId);
-        let str = `<div class="" data-addtion-id="${addObj.id}">
-                        <label>${addObj.name}</label>
-                        <hr class="my-1"/>
-                        ${addObj.items.map(item => {
-            return `<input type="${addObj.isMulti ? 'checkbox' : 'radio'}" class="btn-check foodAdditionOption" name="${addObj.name}" id="add-${item.id}" value="${item.id}" data-add-price="${item.price}">
-                                    <label class="btn btn-pill-primary" for="add-${item.id}" >${item.name} +$${item.price}</label>`;
-        }).join('')}
-                    </div>`;
-        return str;
-    })
-    let content = `<div class="modal-content">
-    <div class="modal-header d-block pb-1" style="border-width: 0;">
-    <button type="button" class="btn-close float-end float" data-bs-dismiss="modal"></button>
-        <h5 class="text-center fw-bolder">${name}</h5>
-    </div>
+    let $card = $(".menu_card[data-product-id='" + productId + "']"),
+        catId = $card.data("cat-id"),
+        name = $card.find(".menu_p_name").html(),
+        content = $card.find(".menu_p_content").html(),
+        price = $card.find(".menu_p_price").html(),
+        img = $card.find(".menu_card_img").attr('src'),
+        isSoldOut = false;
+    let addiIds = $card.data("addition-ids").toString().trim();
+    addiIds = addiIds.split(",").filter(elem => elem);
 
-    <div class="modal-body pt-1">
-        <!-- 介紹 -->
-        <div>
-            <img src="${img}" class="modalFoodImg mb-3" alt="" />
-            <p class="h6 fw-light">${comment}</p>
-            <p class="h6 fw-light"></p>
-            <p class="h5">$${price}</p>
-        </div>
-        <!-- 選項 -->
-        <div id="foodAdditionOptions">
-            ${additionContents.join("")}
-        </div>
+    // 商品的附加選項
+    addiOptHtml = getAddiOptsHtml(addiIds);
 
-        <br />
-        <!-- 備註 -->
-        <div>
-            <p class="h6">餐點備註</p>
-            <textarea class="form-control" id="tempProductComment" rows="2"></textarea>
-        </div>
-    </div>
-    <div class="modal-footer flex-column">
-        <!-- 數量 -->
-
-        <div class="d-flex align-items-center">
-            <button class="btn rounded-circle btn-sm btn-minus" onclick="adjAmount('${price}','minus')"><i class="fa-solid fa-minus small"></i></button>
-            <span class="mx-4" id="tempProductAmount">1</span>
-            <button class="btn rounded-circle btn-sm btn-add" onclick="adjAmount('${price}','add')"><i class="fa-solid fa-plus small"></i></button>
-        </div>
-
-        <!-- 加入購物車 -->
-        <button type="button" class="btn btn-addToCart my-1" id="btnAddToCart" onclick="addToCart('${catId}','${id}')" >
-            <span class=""> 加入購物車($</span>
-            <span class="" id="tempProductTotal" data-food-price="${price}" data-add-price="0" data-total-price="${price}">${price}</span>
-            <span class="">)</span>
-        </button>
-    </div>
-</div>`;
-    $('#productModal div.modal-content').html(content);
+    // 商品的資訊
+    $(".product_modal_name").html(name);
+    $(".product_modal_content").html(content);
+    $(".product_modal_price").html(price);
+    $(".product_modal_img").attr("src", img);
+    $("#foodAdditionOptions").html(addiOptHtml);
+    $(".product_modal_temp_total").data("food-price", price)
+                                  .data("total-price", price)
+                                  .html(price);
 }
 //渲染購物車Modal
 function renderCartModal() {
@@ -840,4 +806,25 @@ function chkTimer() {
             clearInterval(timer);
         }
     }, 1000);
+}
+
+function getAddiOptsHtml(addiIds) {
+    let addiOpts = [];
+    if (addiIds.length > 0){
+        addiOpts = addiIds.map(addiId => {
+            let addiObj = cat_add_list.find(x => x.id == addiId);
+            let str = `<div class="" data-addtion-id="${addiObj.id}">
+                            <label>${addiObj.name}</label>
+                            <hr class="my-1"/>
+
+                            ${addiObj.additions.map(addiItem => {
+                return `<input type="${addiObj.is_multiple ? 'checkbox' : 'radio'}" class="btn-check foodAdditionOption" name="${addiObj.name}" id="add-${addiItem.id}" value="${addiItem.id}" data-add-price="${addiItem.price}">
+                                        <label class="btn btn-pill-primary" for="add-${addiItem.id}" >${addiItem.name} +$${addiItem.price}</label>`;
+            }).join('')}
+                        </div>`;
+            return str;
+        });
+    }
+
+    return addiOpts.join('');
 }

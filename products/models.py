@@ -26,7 +26,7 @@ class CategoriesManager(models.Manager):
                     'price': product.price,
                     'content': product.content,
                     'img': img_url,
-                    'addition_ids': product.additions_set.only('id').values_list('id'),
+                    'addition_ids': list(product.additions_set.only('id').values_list('id', flat=True)),
                 }
                 prod_list.append(prod_dict)
 
@@ -55,7 +55,7 @@ class AdditionCategoriesManager(models.Manager):
                 'name': addi_cat.name,
                 'is_multiple': addi_cat.is_multiple,
                 'is_active': addi_cat.is_active,
-                'additions': addi_cat.additions_set.values('id', 'name', 'is_active'),
+                'additions': list(addi_cat.additions_set.values('id', 'name', 'price', 'is_active')),
             }
             ret_list.append(addi_dict)
             # print(additions)

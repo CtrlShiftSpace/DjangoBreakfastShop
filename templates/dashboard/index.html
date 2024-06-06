@@ -1,0 +1,174 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<!-- CSS -->
+<link href="{% static 'css/dashboard.css' %}" rel="stylesheet">
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/c3/0.7.20/c3.min.css" rel="stylesheet" />
+<!-- Load d3.js and c3.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/c3/0.7.20/c3.min.js" charset="utf-8"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.16.0/d3.min.js"></script>
+<!-- 主頁 -->
+<div class="">
+    <!-- 最上方標題導覽列 -->
+    <div class="header">
+        <nav class="navbar navbar-expand-lg navbar-light *bg-c-secondary">
+            <div class="container *container-fluid">
+                <a class="navbar-brand me-0" style="width: 220px"><img class="logo" src="./Img/logo.svg" style="width: 100%" alt="" /></a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0" id="navList">
+                        <li class="nav-item" id="navLoginArea">
+                            <a class="nav-link" href="" id="">早安! 薯餅</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="">後台管理</a>
+                        </li>
+                        <li class="nav-item" id="navLoginArea">
+                            <a class="nav-link" href="">登出</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <!-- 中間主要內容 -->
+    <div class="main-content container">
+        <!-- 出餐管理 -->
+        <div class="page customerOrders">
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-3 pb-5" id="customerOrders"></div>
+        </div>
+
+        <!-- 商品管理 -->
+        <div class="page productManage">
+            <div class="table-scroll h-100vh pb-5" id="productManage">
+                <table class="table">
+                    <thead>
+                        <tr class="text-center">
+                            <th>品項名稱</th>
+                            <th>類別</th>
+                            <th>圖片</th>
+                            <th>簡介</th>
+                            <th>附加項目</th>
+                            <th>狀態</th>
+                            <th>價格</th>
+                            <th>編輯</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productManageList"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 營收分析 -->
+        <div class="page revenueAnalysis">
+            <div id="revenueAnalysis">
+                <h4>單品銷售概況<select class="ms-2" id="selectCat"></select></h4>
+                <div id="chart1"></div>
+                <br />
+                <h4>各類型銷售概況</h4>
+                <div class="row row-cols-1 row-cols-lg-2">
+                    <div id="chart2" class="*col-6 text-center"></div>
+                    <div id="chart3" class="*col-6 text-center"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 頁尾 -->
+    <div class="footer py-2">
+        <div class="container">
+            <!-- 出餐管理 -->
+            <div class="page customerOrders">
+                <div class="d-flex justify-content-end align-items-center py-2">
+                    <div class="border-left me-3 fw-bolder finger" onclick="switchOrders('all')">
+                        <span class="ms-2">全部訂單</span>
+                        <span class="*text-danger" id="allOrdersCount">0</span>
+                    </div>
+                    <div class="border-left me-3 fw-bolder finger" onclick="switchOrders('true')">
+                        <span class="ms-2">已完成</span>
+                        <span class="*text-danger" id="doneOrdersCount">0</span>
+                    </div>
+                    <div class="border-left me-3 fw-bolder finger" onclick="switchOrders('false')">
+                        <span class="ms-2">未完成</span>
+                        <span class="text-danger" id="notDoneOrdersCount">0</span>
+                    </div>
+                </div>
+            </div>
+            <div class="page productManage">
+                <div class="d-flex justify-content-end align-items-center py-2 pe-3">
+                    <button class="btn btn-sm btn-my-primary" onclick="btnAddProduct()">新增品項</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal -->
+<div>
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header border-0 pb-1">
+                    <button type="button" class="btn-close float-end float" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body"></div>
+            </div>
+        </div>
+    </div>
+    <!-- Product Edit Modal -->
+    <div class="modal fade" id="productEditModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header d-block">
+                    <h4 class="text-center d-inline-block mb-0">編輯產品內容</h4>
+                    <button type="button" class="btn-close float-end float" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" data-id="">
+                    <div class="item">
+                        <label for="" class="col-2">品項名稱</label>
+                        <input type="text" value="" id="" name="name" />
+                    </div>
+                    <div class="item">
+                        <label for="" class="col-2">類別</label>
+                        <select name="catId" id=""></select>
+                    </div>
+                    <div class="item">
+                        <label for="" class="col-2">圖片網址</label>
+                        <input type="text" value="" id="" name="img" />
+                    </div>
+                    <div class="item">
+                        <label for="" class="col-2">簡介</label>
+                        <input type="text" value="" id="" name="comment" />
+                    </div>
+                    <div class="item">
+                        <label for="" class="col-2">附加項目</label>
+                        <div name="additionIds"></div>
+                    </div>
+                    <div class="item">
+                        <label for="" class="col-2">狀態</label>
+                        <div>
+                            <input type="radio" class="btn-check" name="isSoldOut" id="isSoldOut1" value="false" autocomplete="off" checked />
+                            <label class="btn btn-radio" for="isSoldOut1">販售中</label>
+                            <input type="radio" class="btn-check" name="isSoldOut" id="isSoldOut2" value="true" autocomplete="off" />
+                            <label class="btn btn-radio" for="isSoldOut2">已售完</label>
+                        </div>
+                    </div>
+                    <div class="item">
+                        <label for="" class="col-2">價格</label>
+                        <input type="number" value="" id="" name="price" />
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-my-primary px-3" onclick="btnSaveEditProduct()">儲存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="{% static 'js/dashboard.js' %}"></script>
+{% endblock content %}

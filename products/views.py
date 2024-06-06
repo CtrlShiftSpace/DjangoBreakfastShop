@@ -1,10 +1,13 @@
 from django.shortcuts import render
 from .models import *
+import json
 
 def index(request):
 
     category_products = Categories.catmanger.get_all_products()
-    return render(request, 'products/index.html', {'category_products': category_products})
+    addtion_categories = AdditionCategories.addi_catmanger.get_all_additions()
+    context = {'category_products': category_products, 'addtion_categories': json.dumps(addtion_categories)}
+    return render(request, 'products/index.html', context=context)
 
     category_products = [
         {
