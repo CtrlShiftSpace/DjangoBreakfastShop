@@ -87,18 +87,18 @@
                     {% for product in category.products %}
                     <div class="col-12 col-md-6 col-xl-4 position-relative" >
                         {% comment %} 商品 {% endcomment %}
-                        <div class="foodCard menu_card {{ product.isSoldOut|yesno:"soldout," }}"
+                        <div class="food-card menu-card {{ product.isSoldOut|yesno:"soldout," }}"
                             data-cat-id="{{ category.id }}"
                             data-product-id="{{ product.product_id }}"
                             data-addition-ids="{{ product.addition_ids|escapeseq|join:"," }}"
                         >
                             <div class="d-flex flex-column w-60">
-                                <p class="h5 menu_p_name">{{ product.name }}</p>
-                                <p class="h6 menu_p_content">{{ product.content }}</p>
-                                <p class="h5 mt-auto">$<span class="menu_p_price">{{ product.price }}</span></p>
+                                <p class="h5 menu-p-name">{{ product.name }}</p>
+                                <p class="h6 menu-p-content">{{ product.content }}</p>
+                                <p class="h5 mt-auto">$<span class="menu-p-price">{{ product.price }}</span></p>
                             </div>
                             <div class="d-inline-block ms-auto">
-                                <img class="menuCardImg menu_card_img" src="{{ product.img }}" alt="" />
+                                <img class="menuCardImg menu-card-img" src="{{ product.img }}" alt="" />
                             </div>
                         </div>
                         <div class="soldoutMask {{ product.isSoldOut|yesno:",d-none" }}">已售完</div>
@@ -119,7 +119,7 @@
                     <span class="text-danger" id="footerTotalPrice">$0</span>
                 </div>
                 <div>
-                    <button class="btn btn-chkOrder" onclick="showCartModal()">查看購物車</button>
+                    <button class="btn show-cart-btn">查看購物車</button>
                 </div>
             </div>
         </div>
@@ -133,16 +133,16 @@
             <div class="modal-content">
                 <div class="modal-header d-block pb-1" style="border-width: 0;">
                     <button type="button" class="btn-close float-end float" data-bs-dismiss="modal"></button>
-                        <h5 class="text-center fw-bolder product_modal_name"></h5>
+                        <h5 class="text-center fw-bolder product-modal-name"></h5>
                     </div>
 
                     <div class="modal-body pt-1">
                         <!-- 介紹 -->
                         <div>
-                            <img class="modalFoodImg product_modal_img mb-3" alt="商品圖片" />
-                            <p class="h6 fw-light product_modal_content"></p>
+                            <img class="modalFoodImg product-modal-img mb-3" alt="商品圖片" />
+                            <p class="h6 fw-light product-modal-content"></p>
                             <p class="h6 fw-light"></p>
-                            <p class="h5">$<span class="product_modal_price"></span></p>
+                            <p class="h5">$<span class="product-modal-price"></span></p>
                         </div>
                         <!-- 選項 -->
                         <div id="foodAdditionOptions">
@@ -166,9 +166,9 @@
                         </div>
 
                         <!-- 加入購物車 -->
-                        <button type="button" class="btn btn-addToCart my-1" id="btnAddToCart" onclick="addToCart('${catId}','${productId}')" >
+                        <button type="button" class="btn btn-addToCart my-1 add-to-cart-btn">
                             <span class=""> 加入購物車($</span>
-                            <span class="product_modal_temp_total" id="tempProductTotal" data-food-price="0" data-add-price="0" data-total-price="0"></span>
+                            <span class="product-modal-temp-total" id="tempProductTotal" data-food-price="0" data-add-price="0" data-total-price="0"></span>
                             <span class="">)</span>
                         </button>
                     </div>
@@ -184,7 +184,27 @@
                     <button type="button" class="btn-close float-end float" data-bs-dismiss="modal" aria-label="Close"></button>
                     <h5 class="text-center fw-bold">購物車資訊</h5>
                 </div>
-                <div class="modal-body"></div>
+                <div class="modal-body">
+                    <div name="商品明細" class="mb-3">
+                        <h5 class="fw-bolder">商品明細</h5>
+                        <hr class="my-2"/>
+                        <div id="cart-modal-product-details"></div>
+                    </div>
+                    <div name="取餐方式" class="mb-3" id="cartTakeWay">
+                        <h5 class="fw-bolder">取餐方式</h5>
+                        <hr class="my-2"/>
+                        <input type="radio" class="btn-check" name="取餐方式" id="tag外帶" value="外帶" autocomplete="off" checked />
+                        <label class="btn btn-cat-tag" for="tag外帶">外帶</label>
+                    
+                        <input type="radio" class="btn-check" name="取餐方式" id="tag內用" value="內用" autocomplete="off" />
+                        <label class="btn btn-cat-tag" for="tag內用">內用</label>
+                    </div>
+                    <div name="訂單備註" class="mb-3">
+                        <h5 class="fw-bolder">訂單備註</h5>
+                        <hr class="my-2" />
+                        <textarea class="form-control" id="cartComment" rows="2"></textarea>
+                    </div>
+                </div>
                 <div class="modal-footer flex-column">
                     <!-- 加入購物車 -->
                     <button type="button" class="btn btn-addToCart my-1" onclick="submitCart()">

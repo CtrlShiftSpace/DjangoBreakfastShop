@@ -22,9 +22,12 @@ $(function () {
         btnAdditionChange();
     });
 
-    $("#menu").on("click", ".foodCard", showProductModal);
-
-
+    // 點選商品項目
+    $("#menu").on("click", ".food-card", onFoodCardClick);
+    // 按下加入購物車按鈕
+    $(".add-to-cart-btn").on('click', onAddToCartBtnClick);
+    // 按下查看購物車按鈕
+    $(".show-cart-btn").on('click', onShowCartBtnClick);
 
     // var token = "";
     // axios.post(`http://127.0.0.1:8000/api/token/`, {
@@ -51,10 +54,33 @@ $(function () {
     // }).catch(function (error) {
     //     console.log('error', error);
     // });
-
-
-
 })
+
+//#region ------------------------------ DOM EVENT處理 ------------------------------
+
+// 按下商品
+function onFoodCardClick(e) {
+    let $modal = $('#productModal');
+    let productId = $(this).attr("data-product-id");
+    // 將資訊放入modal中
+    renderProductModal(productId);
+    $modal.attr("data-product-id", productId);
+    $modal.modal('show');
+}
+
+// 加入購物車
+function onAddToCartBtnClick(e) {
+    const catId = $(this).attr('data-cat-id');
+    const productId = $(this).attr('data-product-id');
+    addToCart(catId, productId);
+}
+
+// 查看購物車
+function onShowCartBtnClick() {
+    let $modal = $('#cartModal');
+    renderCartModal();
+    $modal.modal('show');
+}
 
 //#region ------------------------------ 邏輯流程 ------------------------------
 //初始化
@@ -79,17 +105,6 @@ function init() {
 //前往後台
 function goToBackstage() {
     window.location.href = 'backstage.html';
-}
-//彈出商品Modal
-function showProductModal() {
-    var productId = $(this).attr("data-product-id");
-    renderProductModal(productId);
-    $('#productModal').modal('show');
-}
-//彈出購物車Modal
-function showCartModal() {
-    renderCartModal();
-    $('#cartModal').modal('show');
 }
 //彈出歷史訂單Modal
 function showUserOrderModal() {
@@ -120,10 +135,11 @@ function filterMenu() {
 }
 //加入購物車
 function addToCart(catId, productId) {
-    const products = menuList.find(x => x.id == catId).products.find(x => x.id == productId);
+    const productName = $(".product-modal-name").text();
     const carts = getCarts();
     const qty = parseInt($('#tempProductAmount').text());
     const comment = $('#tempProductComment').val();
+
     let additems = [];
     $('#foodAdditionOptions input.foodAdditionOption:checked').each(function () {
         additems.push($(this).val());
@@ -131,8 +147,8 @@ function addToCart(catId, productId) {
     const price = parseInt($("#tempProductTotal").text());
     carts.push({
         catId: catId,
-        id: products.id,
-        name: products.name,
+        id: productId,
+        name: productName,
         price: price / qty,
         qty: qty,
         comment: comment,
@@ -414,6 +430,7 @@ function login(email, password) {
         }).catch(function (error) {
             sweetError('登入失敗', '帳號或密碼錯誤');
         });
+
 }
 //logout
 function logout() {
@@ -459,6 +476,43 @@ function postCartOrder(order) {
 
 //#region ------------------------------ 渲染畫面 ------------------------------
 
+// 渲染商品Modal
+function renderProductModal(productId) {
+    let $card = $(".menu-card").filter("[data-product-id='" + productId + "']"),
+        catId = $card.attr("data-cat-id"),
+        name = $card.find(".menu-p-name").html(),
+        content = $card.find(".menu-p-content").html(),
+        price = $card.find(".menu-p-price").html(),
+        img = $card.find(".menu-card-img").attr('src'),
+        isSoldOut = false;
+    let addiIds = $card.attr("data-addition-ids").toString().trim();
+    addiIds = addiIds.split(",").filter(elem => elem);
+
+    // 商品的附加選項
+    addiOptHtml = getAddiOptsHtml(addiIds);
+
+    // 商品的資訊
+    $(".product-modal-name").html(name);
+    $(".product-modal-content").html(content);
+    $(".product-modal-price").html(price);
+    $(".product-modal-img").attr("src", img);
+    $("#foodAdditionOptions").html(addiOptHtml);
+    $(".product-modal-temp-total").attr("data-food-price", price)
+                                  .attr("data-total-price", price)
+                                  .html(price);
+    // 加入購物車按鈕
+    $(".add-to-cart-btn").attr("data-cat-id", catId);
+    $(".add-to-cart-btn").attr("data-product-id", productId);
+}
+
+
+
+
+
+
+
+
+
 //渲染菜單
 function renderMenu() {
     let contents = [];
@@ -468,7 +522,7 @@ function renderMenu() {
         let catContent1 = `<div class="menu-cards row g-3" data-cat='${catObj.name}'>`;
         let catProducts = catObj.products.map(productObj => {
             return `<div class="col-12 col-md-6 col-xl-4 position-relative" >
-                        <div class="foodCard ${productObj.isSoldOut ? 'soldout' : ''}" onclick="showProductModal('${productObj.catId}', '${productObj.id}')">
+                        <div class="food-card ${productObj.isSoldOut ? 'soldout' : ''}" onclick="showProductModal('${productObj.catId}', '${productObj.id}')">
                             <div class="d-flex flex-column w-60">
                                 <p class="h5">${productObj.name}</p>
                                 <p class="h6">${productObj.comment}</p>
@@ -489,83 +543,19 @@ function renderMenu() {
     $('#menu').html(contents.join(''));
     filterMenu();
 }
-//渲染產品Modal
-function renderProductModal(productId) {
-    let $card = $(".menu_card[data-product-id='" + productId + "']"),
-        catId = $card.data("cat-id"),
-        name = $card.find(".menu_p_name").html(),
-        content = $card.find(".menu_p_content").html(),
-        price = $card.find(".menu_p_price").html(),
-        img = $card.find(".menu_card_img").attr('src'),
-        isSoldOut = false;
-    let addiIds = $card.data("addition-ids").toString().trim();
-    addiIds = addiIds.split(",").filter(elem => elem);
-
-    // 商品的附加選項
-    addiOptHtml = getAddiOptsHtml(addiIds);
-
-    // 商品的資訊
-    $(".product_modal_name").html(name);
-    $(".product_modal_content").html(content);
-    $(".product_modal_price").html(price);
-    $(".product_modal_img").attr("src", img);
-    $("#foodAdditionOptions").html(addiOptHtml);
-    $(".product_modal_temp_total").data("food-price", price)
-                                  .data("total-price", price)
-                                  .html(price);
-}
 //渲染購物車Modal
 function renderCartModal() {
-    let cartList = getCarts()
-    let contentCartList = [];
-    if (cartList.length > 0) {
-        contentCartList = cartList.map((productObj, index) => {
-            const { id, name, price, qty, comment, additems } = productObj;
-            return `
-        <div class="cartfoodCard d-block mb-2" data-id="${id}" data-price="${price}">
-            <div class="d-flex justify-content-between mb-2">
-                <span class="h6 fw-bolder">${name}</span>
-                <div class="">
-                    <button class="btn rounded-circle btn-sm cartEdit" onclick="editCartProduct('${id}','${index}')"><i class="fa-solid fa-pencil"></i></button>
-                    <button class="btn rounded-circle btn-sm cartDelete" onclick="deleteCartProduct('${index}')"><i class="fa-solid fa-trash-can"></i></button>
-                </div>
-            </div>
-
-            <span class="h6 fw-light d-block">${comment ? (comment) : ""}</span>
-            <span class="h6 fw-light d-block">${additems.map(x => additionIdToName(x)).join("/")}</span>
-            <div class="d-flex justify-content-between">
-
-                <span class="fw-light">$${price} / ${qty}份</span>
-                <div class="text-danger fw-bold">$${price * qty}</div>
-            </div>
-        </div>
-        `
-        })
-    } else {
-        contentCartList.push(`<div class="text-center">購物車內沒有商品</div>`)
+    let cartList = getCarts();
+    // 購物車內容
+    let cartCont = "";
+    if (cartList.length == 0){
+        cartCont += "<div class='text-center'>購物車內沒有商品</div>";
+    }else{
+        cartList.map((obj, index) => {
+            cartCont += getCartItemsHtml(obj, index);
+        });
     }
-
-    let content = `<div name="商品明細" class="mb-3">
-    <h5 class="fw-bolder">商品明細</h5>
-    <hr class="my-2" />
-    ${contentCartList.join("")}
-</div>
-<div name="取餐方式" class="mb-3" id="cartTakeWay">
-    <h5 class="fw-bolder">取餐方式</h5>
-    <hr class="my-2"/>
-    <input type="radio" class="btn-check" name="取餐方式" id="tag外帶" value="外帶" autocomplete="off" checked />
-    <label class="btn btn-cat-tag" for="tag外帶">外帶</label>
-
-    <input type="radio" class="btn-check" name="取餐方式" id="tag內用" value="內用" autocomplete="off" />
-    <label class="btn btn-cat-tag" for="tag內用">內用</label>
-</div>
-<div name="訂單備註" class="mb-3">
-    <h5 class="fw-bolder">訂單備註</h5>
-    <hr class="my-2" />
-    <textarea class="form-control" id="cartComment" rows="2"></textarea>
-</div>`
-
-    $("#cartModal .modal-body").html(content);
+    $("#cart-modal-product-details").html(cartCont);
     $("#tempCartTotalPrice").html(`($${countCartTotalPrice()})`);
 }
 //渲染歷史訂單Modal //todo
@@ -808,6 +798,7 @@ function chkTimer() {
     }, 1000);
 }
 
+//#region ------------------------------ 回傳HTML內容 ------------------------------
 function getAddiOptsHtml(addiIds) {
     let addiOpts = [];
     if (addiIds.length > 0){
@@ -825,6 +816,28 @@ function getAddiOptsHtml(addiIds) {
             return str;
         });
     }
-
     return addiOpts.join('');
+}
+
+
+function getCartItemsHtml(obj, index){
+    const { id, name, price, qty, comment, additems } = obj;
+    return `
+    <div class="cartfoodCard d-block mb-2" data-id="${id}" data-price="${price}">
+        <div class="d-flex justify-content-between mb-2">
+            <span class="h6 fw-bolder">${name}</span>
+            <div class="">
+                <button class="btn rounded-circle btn-sm cartEdit" onclick="editCartProduct('${id}','${index}')"><i class="fa-solid fa-pencil"></i></button>
+                <button class="btn rounded-circle btn-sm cartDelete" onclick="deleteCartProduct('${index}')"><i class="fa-solid fa-trash-can"></i></button>
+            </div>
+        </div>
+
+        <span class="h6 fw-light d-block">${comment ? (comment) : ""}</span>
+        <span class="h6 fw-light d-block">${additems.map(x => additionIdToName(x)).join("/")}</span>
+        <div class="d-flex justify-content-between">
+
+            <span class="fw-light">$${price} / ${qty}份</span>
+            <div class="text-danger fw-bold">$${price * qty}</div>
+        </div>
+    </div>`;
 }
