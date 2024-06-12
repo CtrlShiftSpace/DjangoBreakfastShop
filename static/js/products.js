@@ -379,34 +379,43 @@ function getUserOrders() {
 }
 //login
 function login(email, password) {
-    axios.post(`${urlDomain}/login`, { email: email, password: password })
+
+    axios.post("/api/token/", { email: email, password: password })
         .then(function (response) {
-            saveDataToLocalStorage('_token', response.data.accessToken);
-            saveDataToLocalStorage('_user', response.data.user);
-            saveDataToLocalStorage('_expire', { time: new Date().getTime(), expire: expireMins * 60 * 1000 });
-            chkTimer();
-            if (response.data.user.role == 'admin') {
-                deleteDataFromLocalStorage('returnModal');
-                window.location.href = 'backstage.html';
-                return;
-            }
-            if (response.data.user.role == 'insider') {
-                window.location.href = window.location.origin + window.location.pathname;
-                return;
-            }
-
-            $('#loginModal').modal('hide');
-            renderNavList();
-            switchModal();
-            if (response.data.user.role == 'insider') {
-                sweetSmallSuccess(`桌號 ${response.data.user.name}，歡迎光臨`);
-            } else {
-                sweetSmallSuccess(`早安😀 ${response.data.user.name}，登入成功`);
-            }
-
+            console.log(response);
         }).catch(function (error) {
             sweetError('登入失敗', '帳號或密碼錯誤');
         });
+
+
+    // axios.post(`${urlDomain}/login`, { email: email, password: password })
+    //     .then(function (response) {
+    //         saveDataToLocalStorage('_token', response.data.accessToken);
+    //         saveDataToLocalStorage('_user', response.data.user);
+    //         saveDataToLocalStorage('_expire', { time: new Date().getTime(), expire: expireMins * 60 * 1000 });
+    //         chkTimer();
+    //         if (response.data.user.role == 'admin') {
+    //             deleteDataFromLocalStorage('returnModal');
+    //             window.location.href = 'backstage.html';
+    //             return;
+    //         }
+    //         if (response.data.user.role == 'insider') {
+    //             window.location.href = window.location.origin + window.location.pathname;
+    //             return;
+    //         }
+
+    //         $('#loginModal').modal('hide');
+    //         renderNavList();
+    //         switchModal();
+    //         if (response.data.user.role == 'insider') {
+    //             sweetSmallSuccess(`桌號 ${response.data.user.name}，歡迎光臨`);
+    //         } else {
+    //             sweetSmallSuccess(`早安😀 ${response.data.user.name}，登入成功`);
+    //         }
+
+    //     }).catch(function (error) {
+    //         sweetError('登入失敗', '帳號或密碼錯誤');
+    //     });
 
 }
 //logout
