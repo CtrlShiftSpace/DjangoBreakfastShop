@@ -4,13 +4,15 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-from django.contrib.auth.models import User
 from .serializers import *
 from products.models import *
 from website.constants import *
+# 改用get_user_model()產生User
+from django.contrib.auth import get_user_model
 
+User = get_user_model()
 
-class UserViewSet(viewsets.ModelViewSet):
+class MainUserViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)
     queryset = User.objects.all()
     serializer_class = UserSerializer

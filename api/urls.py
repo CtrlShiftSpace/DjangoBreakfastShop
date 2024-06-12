@@ -4,7 +4,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from . import views
 
 router = routers.DefaultRouter()
-router.register(r'users', views.UserViewSet)
+router.register(r'users', views.MainUserViewSet)
 router.register(r'categories', views.CategoriesViewSet)
 router.register(r'products', views.ProductViewSet)
 router.register(r'additions/categories', views.AdditionCategoriesViewSet)
