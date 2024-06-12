@@ -16,9 +16,9 @@
     <div class="header">
         <nav class="navbar navbar-expand-lg navbar-light *bg-c-secondary">
             <div class="container *container-fluid">
-                <span class="navbar-brand m-0" style="width: 220px" id="logo"
-                    ><img class="logo" src="./Img/logo.svg" style="width: 100%" alt=""
-                /></span>
+                <span class="navbar-brand m-0" style="width: 220px" id="logo">
+                    <img class="logo" src="./Img/logo.svg" style="width: 100%" alt=""/>
+                </span>
 
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
                     <span class="navbar-toggler-icon"></span>
@@ -40,10 +40,16 @@
                 <div class="tagArea mx-3">
                     <ul class="tagList">
                         <li>
-                            <input type="radio" class="btn-check" name="分類標籤" id="tag全部" value="全部" autocomplete="off" checked />
-                            <label class="btn btn-cat-tag" for="tag全部">全部</label>
+                            <input type="radio" class="btn-check" name="cat-tags" id="cat-tag-all" value="-1" autocomplete="off" checked />
+                            <label class="btn btn-cat-tag" for="cat-tag-all">全部</label>
                         </li>
+                        {% for category in category_products %}
                         <li>
+                            <input type="radio" class="btn-check" name="cat-tags" id="cat-tag-{{ category.id }}" value="{{ category.id }}" autocomplete="off" />
+                            <label class="btn btn-cat-tag" for="cat-tag-{{ category.id }}">{{ category.name }}</label>
+                        </li>
+                        {% endfor %}
+                        {% comment %} <li>
                             <input type="radio" class="btn-check" name="分類標籤" id="tag蛋餅" value="蛋餅" autocomplete="off" />
                             <label class="btn btn-cat-tag" for="tag蛋餅">蛋餅</label>
                         </li>
@@ -66,7 +72,7 @@
                         <li>
                             <input type="radio" class="btn-check" name="分類標籤" id="tag飲品" value="飲品" autocomplete="off" />
                             <label class="btn btn-cat-tag" for="tag飲品">飲品</label>
-                        </li>
+                        </li> {% endcomment %}
                     </ul>
                 </div>
                 <!-- <div class="rightArrow"><img src="./Img/PC/Arrow circle down.png" alt="" /></div> -->
@@ -79,7 +85,7 @@
             <div class="menu container pb-6" id="menu">
                 {% comment %} 商品種類 {% endcomment %}
                 {% for category in category_products %}
-                <div name="foodCat" data-cat="{{ category.name }}">
+                <div name="cat-area" data-cat-id="{{ category.id }}" data-cat="{{ category.name }}">
                     <div class="catTitle my-3" data-cat="{{ category.name }}">
                         <span class="h4 fw-bolder">{{ category.name }}</span>
                     </div>
@@ -195,7 +201,7 @@
                         <hr class="my-2"/>
                         <input type="radio" class="btn-check" name="取餐方式" id="tag外帶" value="外帶" autocomplete="off" checked />
                         <label class="btn btn-cat-tag" for="tag外帶">外帶</label>
-                    
+
                         <input type="radio" class="btn-check" name="取餐方式" id="tag內用" value="內用" autocomplete="off" />
                         <label class="btn btn-cat-tag" for="tag內用">內用</label>
                     </div>
@@ -339,9 +345,9 @@
 
 <script src="{% static 'js/products.js' %}"></script>
 <script>
-    $(function () {
+    {% comment %} $(function () {
         $("#adModal").modal("show");
-    });
+    }); {% endcomment %}
     // open productModal modal
 </script>
 

@@ -1,8 +1,8 @@
 //#region ------------------------------ 全域變數 ------------------------------
 let menuList = []; //存放菜單的陣列(sort by catId)
-let theProducts = []; //存放菜單的陣列(sort by productId)
+// let theProducts = []; //存放菜單的陣列(sort by productId)
 let theUserOrders = []; //客人的歷史訂單
-let theFoodAdditions = []; //食物附加選項
+// let theFoodAdditions = []; //食物附加選項
 const expireMins = 30; //登入過期時間(分鐘)
 // const urlDomain = 'http://localhost:3000';
 const urlDomain = 'https://json-server-vercel-a.vercel.app';
@@ -13,9 +13,9 @@ $(function () {
 
     init();
     //監聽分類標籤
-    $('input[name="分類標籤"]').on('change', filterMenu);
+    $('input[name="cat-tags"]').on('change', catTagsChange);
     $("#logo").on("click", function () {
-        $("#tag全部").click();
+        $("#cat-tag-all").click();
         $('#menu').animate({ scrollTop: 0 }, 'fast');
     })
     $("#productModal").on("change", "#foodAdditionOptions input.foodAdditionOption", function () {
@@ -58,6 +58,18 @@ $(function () {
 
 //#region ------------------------------ DOM EVENT處理 ------------------------------
 
+// 切換分類標籤
+function catTagsChange(e) {
+    const catId = parseInt($("input[name='cat-tags']:checked").val());
+    if (catId < 0) {
+        // 全部
+        $('div[name="cat-area"]').show();
+    } else {
+        $('div[name="cat-area"]').hide();
+        $(`div[name="cat-area"][data-cat-id="${catId}"]`).show();
+    }
+}
+
 // 按下商品
 function onFoodCardClick(e) {
     let $modal = $('#productModal');
@@ -97,7 +109,6 @@ function init() {
         chkTimer();
     }
     // getMenu();
-    getFoodAddition();
     renderNavList();
     renderQrCode();
     updateFooterTotalPrice();
@@ -122,16 +133,6 @@ function showAdModal() {
 //彈出導覽Modal
 function showGuideModal() {
     $('#guideModal').modal('show');
-}
-//篩選菜單
-function filterMenu() {
-    const cat = $("input[name='分類標籤']:checked").val();
-    if (cat == '全部') {
-        $('div[name="foodCat"]').show();
-    } else {
-        $('div[name="foodCat"]').hide();
-        $(`div[name="foodCat"][data-cat="${cat}"]`).show();
-    }
 }
 //加入購物車
 function addToCart(catId, productId) {
@@ -360,30 +361,6 @@ function catIdToCatName(catId) {
 
 //#region ------------------------------ API ------------------------------
 
-//取得菜單資料
-function getMenu() {
-    axios.get(`/api/categories/?show_type=1`).then(function (response) {
-        menuList = response.data;
-        theProducts = menuList.reduce((a, b) => [...a, ...b.products], [])
-        renderMenu();
-    }).catch(function (error) {
-        console.log('error', error);
-    });
-}
-//取得食品附加項目
-function getFoodAddition() {
-    const config = {
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    }
-    axios.get(`/api/additions/categories/`,config)
-    .then(function (response) {
-        theFoodAdditions = response.data;
-    }).catch(function (error) {
-        console.log('error', error);
-    });
-}
 //取得用戶歷史訂單
 function getUserOrders() {
     const userId = getDataFromLocalStorage('_user').id;
@@ -506,43 +483,6 @@ function renderProductModal(productId) {
 }
 
 
-
-
-
-
-
-
-
-//渲染菜單
-function renderMenu() {
-    let contents = [];
-    menuList.forEach(catObj => {
-        const catOutline1 = `<div name="foodCat" data-cat='${catObj.name}' >`;
-        let catTitle = `<div class="catTitle my-3" data-cat='${catObj.name}'><span class="h4 fw-bolder">${catObj.name}</span></div>`;
-        let catContent1 = `<div class="menu-cards row g-3" data-cat='${catObj.name}'>`;
-        let catProducts = catObj.products.map(productObj => {
-            return `<div class="col-12 col-md-6 col-xl-4 position-relative" >
-                        <div class="food-card ${productObj.isSoldOut ? 'soldout' : ''}" onclick="showProductModal('${productObj.catId}', '${productObj.id}')">
-                            <div class="d-flex flex-column w-60">
-                                <p class="h5">${productObj.name}</p>
-                                <p class="h6">${productObj.comment}</p>
-                                <p class="h5 mt-auto">$${productObj.price}</p>
-                            </div>
-                            <div class="d-inline-block ms-auto">
-                                <img class="menuCardImg" src="${productObj.img}" alt="" />
-                            </div>
-                        </div>
-                        <div class="soldoutMask ${productObj.isSoldOut ? '' : 'd-none'}">已售完</div>
-                    </div>
-                    `;
-        }).join('');
-        let catContent2 = `</div>`;
-        const catOutline2 = `</div>`;
-        contents.push(catOutline1 + catTitle + catContent1 + catProducts + catContent2 + catOutline2);
-    })
-    $('#menu').html(contents.join(''));
-    filterMenu();
-}
 //渲染購物車Modal
 function renderCartModal() {
     let cartList = getCarts();
