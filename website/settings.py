@@ -140,6 +140,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # 自定義User model
 AUTH_USER_MODEL = 'products.MainUser'
 
+AUTHENTICATION_BACKENDS = [
+    'products.backend.EmailOrUsernameModelBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
