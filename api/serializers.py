@@ -1,10 +1,10 @@
 from rest_framework import serializers
-from django.contrib.auth.models import User
-from products.models import Categories, Products, Additions, AdditionCategories
+# from django.contrib.auth.models import User
+from products.models import Categories, Products, Additions, AdditionCategories, MainUser
 
-class UserSerializer(serializers.ModelSerializer):
+class MainUserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
+        model = MainUser
         fields = ['username', 'email', 'is_staff']
 
 class CategoriesSerializer(serializers.ModelSerializer):

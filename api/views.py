@@ -15,7 +15,7 @@ User = get_user_model()
 class MainUserViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)
     queryset = User.objects.all()
-    serializer_class = UserSerializer
+    serializer_class = MainUserSerializer
 
 class CategoriesViewSet(viewsets.ModelViewSet):
     queryset = Categories.objects.all().order_by('name')
