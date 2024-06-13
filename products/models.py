@@ -5,6 +5,7 @@ from django.contrib.auth.models import (
     BaseUserManager,
     PermissionsMixin,
 )
+from website.utils import *
 
 class MainUserManager(BaseUserManager):
     # 一般使用者
@@ -133,7 +134,7 @@ class Products(models.Model):
     name = models.CharField(max_length=255)
     price = models.FloatField(default=0)
     content = models.TextField(null=True)
-    img = models.ImageField(upload_to='static/', null=True, blank=True)
+    img = models.ImageField(upload_to=MediaPathAndRename('products/'), null=True, blank=True)
     is_active = models.BooleanField(default=False)
     categories = models.ManyToManyField(Categories, through='CategoryProducts')
     created_at = models.DateTimeField(auto_now_add=True)
