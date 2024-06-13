@@ -196,3 +196,8 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5),
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
+
+# 存放fixtures的目錄
+FIXTURE_DIRS = [
+    os.path.join(BASE_DIR, 'fixtures'),
+]

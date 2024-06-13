@@ -1,0 +1,29 @@
+[
+{
+    "model": "products.additioncategories",
+    "pk": 1,
+    "fields": {
+        "name": "加料",
+        "is_multiple": true,
+        "is_active": true
+    }
+},
+{
+    "model": "products.additioncategories",
+    "pk": 2,
+    "fields": {
+        "name": "大小",
+        "is_multiple": false,
+        "is_active": true
+    }
+},
+{
+    "model": "products.additioncategories",
+    "pk": 3,
+    "fields": {
+        "name": "溫度",
+        "is_multiple": false,
+        "is_active": true
+    }
+}
+]
