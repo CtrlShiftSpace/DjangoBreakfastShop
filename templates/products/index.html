@@ -221,17 +221,50 @@
             </div>
         </div>
     </div>
-    <!-- Login Modal -->
-    <div class="modal fade" id="loginModal" tabindex="-1">
+    <!-- User Modal -->
+    <div class="modal fade" id="user-modal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header border-0 pb-1">
                     <button type="button" class="btn-close float-end float" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body"></div>
+                <div class="modal-body">
+                    {% comment %} 登入 {% endcomment %}
+                    <div class="user-modal-body-page user-login-page">
+                        <div class="d-flex flex-column align-items-center gap-3">
+                            <p class="h4 fw-bold">登入會員</p>
+                            <input type="text" class="login-input" placeholder="請輸入帳號或Email" id="login-page-username" />
+                            <input type="password" class="login-input" placeholder="請輸入密碼" id="login-page-password" />
+                            <button class="btn btn-login" onclick="btnLogin()">登入</button>
+
+                            <p>還沒成為會員? <span class="color-primary border-bottom finger switch-user-page" data-topage="register">註冊</span></p>
+                            <p class="fw-light">
+                                <span>Demo: </span>
+                                <span class="ms-2 finger" onclick="demoInput('小明')">顧客-小明</span>
+                                <span class="ms-2 finger" onclick="demoInput('阿姨')">老闆-阿姨</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    {% comment %} 註冊 {% endcomment %}
+                    <div class="user-modal-body-page user-register-page">
+                        <div class="d-flex flex-column align-items-center gap-3">
+                            <p class="h4 fw-bold">註冊會員</p>
+                            <input type="text" class="login-input" placeholder="會員帳號" id="register-page-username" />
+                            <input type="password" class="login-input" placeholder="會員密碼" id="register-page-password" />
+                            <input type="text" class="login-input" placeholder="會員名稱" id="register-page-name" />
+                            <input type="email" class="login-input" placeholder="Email" id="register-page-email" />
+                            <input type="phone" class="login-input" placeholder="聯絡電話" id="register-page-phone" />
+                            <button class="btn btn-login" onclick="btnRegister()">註冊</button>
+                            <p>已經是會員? <span class="color-primary border-bottom finger switch-user-page" data-topage="login">登入</span></p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+
+
     <!-- 歷史訂單Modal -->
     <div class="modal fade" id="userOrdersModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">

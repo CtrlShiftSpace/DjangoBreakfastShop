@@ -28,6 +28,7 @@ $(function () {
     $(".add-to-cart-btn").on('click', onAddToCartBtnClick);
     // 按下查看購物車按鈕
     $(".show-cart-btn").on('click', onShowCartBtnClick);
+    $(".switch-user-page").on('click', onSwitchUserPageClick);
 
     // var token = "";
     // axios.post(`http://127.0.0.1:8000/api/token/`, {
@@ -88,10 +89,17 @@ function onAddToCartBtnClick(e) {
 }
 
 // 查看購物車
-function onShowCartBtnClick() {
+function onShowCartBtnClick(e) {
     let $modal = $('#cartModal');
     renderCartModal();
     $modal.modal('show');
+}
+
+// 切換會員相關功能頁
+function onSwitchUserPageClick(e){
+    const toPage = $(this).attr("data-topage");
+    $(".user-modal-body-page").hide();
+    renderUserModal(toPage);
 }
 
 //#region ------------------------------ 邏輯流程 ------------------------------
@@ -123,8 +131,8 @@ function showUserOrderModal() {
 }
 //彈出loginModal
 function showLoginModal() {
-    renderLoginModal();
-    $('#loginModal').modal('show');
+    renderUserModal("login");
+    $('#user-modal').modal('show');
 }
 //彈出廣告Modal
 function showAdModal() {
@@ -304,16 +312,16 @@ function goToLoginModalWithName(demoName) {
 }
 //check login info
 function btnLogin(callbackModal = "") {
-    const email = $("#loginEmail").val();
-    const password = $("#loginPassword").val();
+    const email = $("#login-page-username").val();
+    const password = $("#login-page-password").val();
     login(email, password)
 }
 //btnRegister
 function btnRegister() {
-    const name = $('#loginName').val();
-    const phone = $('#loginPhone').val();
-    const email = $('#loginEmail').val();
-    const password = $('#loginPassword').val();
+    const name = $('#register-page-name').val();
+    const email = $('#register-page-email').val();
+    const phone = $('#register-page-phone').val();
+    const password = $('#register-page-password').val();
     if (name == '' || phone == '' || email == '' || password == '') {
         sweetError('請輸入完整資料');
         return;
@@ -378,11 +386,20 @@ function getUserOrders() {
         });
 }
 //login
-function login(email, password) {
-
-    axios.post("/api/token/", { email: email, password: password })
+function login(username, password) {
+    const config = {
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    }
+    axios.post("/api/token/", {
+            username: username,
+            password: password
+        }, config)
         .then(function (response) {
-            console.log(response);
+            console.log(response.data);
+            // response.data.access
+
         }).catch(function (error) {
             sweetError('登入失敗', '帳號或密碼錯誤');
         });
@@ -432,7 +449,7 @@ function register(model) {
         .then(function (response) {
             saveDataToLocalStorage('_token', response.data.accessToken);
             saveDataToLocalStorage('_user', response.data.user);
-            $('#loginModal').modal('hide');
+            $('#user-modal').modal('hide');
             renderNavList();
             switchModal();
             sweetSmallSuccess('註冊成功');
@@ -597,42 +614,14 @@ function renderNavList() {
     `;
     $("#navList").html(content);
 }
-//渲染loginModal
-function renderLoginModal(method = 'login') {
-    let content = '';
-    if (method == 'login') {
-        content = `
-    <div class="d-flex flex-column align-items-center gap-3">
-        <p class="h4 fw-bold">會員</p>
-        <input type="email" class="login-input" placeholder="Email" id="loginEmail" />
-        <input type="password" class="login-input" placeholder="Password" id="loginPassword" />
-        <button class="btn btn-login" onclick="btnLogin()">登入</button>
-
-        <p>還沒成為會員? <span class="color-primary border-bottom finger" onclick="renderLoginModal('register')">註冊</span></p>
-        <p class="fw-light">
-            <span>Demo: </span>
-            <span class="ms-2 finger" onclick="demoInput('小明')">顧客-小明</span>
-            <span class="ms-2 finger" onclick="demoInput('阿姨')">老闆-阿姨</span>
-        </p>
-    </div>
-    `
-        //註冊
-    } else if (method == 'register') {
-        content = `
-    <div class="d-flex flex-column align-items-center gap-3">
-        <p class="h4 fw-bold">會員</p>
-        <input type="text" class="login-input" placeholder="Name" id="loginName" />
-        <input type="phone" class="login-input" placeholder="phone" id="loginPhone" />
-        <input type="email" class="login-input" placeholder="Email" id="loginEmail" />
-        <input type="password" class="login-input" placeholder="Password" id="loginPassword" />
-        <button class="btn btn-login" onclick="btnRegister()">註冊</button>
-
-        <p>已經是會員? <span class="color-primary border-bottom finger" onclick="renderLoginModal('login')">登入</span></p>
-    </div>
-    `
+//渲染User Modal
+function renderUserModal(uPage = 'login') {
+    $(".user-modal-body-page").hide();
+    if (uPage == 'login') {
+        $(".user-login-page").show();
+    } else if (uPage == 'register'){
+        $(".user-register-page").show();
     }
-    $("#loginModal .modal-body").html(content);
-    //$('#loginModal').modal('show');
 }
 //渲染qr code
 function renderQrCode() {
