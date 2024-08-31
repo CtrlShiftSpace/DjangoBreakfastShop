@@ -1,5 +1,6 @@
 //#region ------------------------------ 全域變數 ------------------------------
-let menuList = []; //存放菜單的陣列(sort by catId)
+// 存放菜單的陣列(sort by catId)
+let menuList = [];
 // let theProducts = []; //存放菜單的陣列(sort by productId)
 let theUserOrders = []; //客人的歷史訂單
 // let theFoodAdditions = []; //食物附加選項
@@ -13,7 +14,7 @@ $(function () {
 
     init();
     //監聽分類標籤
-    $('input[name="cat-tags"]').on('change', catTagsChange);
+    $('input[name="cat-tags"]').on('change', catTagsChangeHandler);
     $("#logo").on("click", function () {
         $("#cat-tag-all").click();
         $('#menu').animate({ scrollTop: 0 }, 'fast');
@@ -59,31 +60,47 @@ $(function () {
 
 //#region ------------------------------ DOM EVENT處理 ------------------------------
 
-// 切換分類標籤
-function catTagsChange(e) {
+/**
+ * 切換分類標籤事件
+ *
+ * @param {Event} e - 變更事件對象
+ * @returns {void}
+ */
+function catTagsChangeHandler(e) {
+    // 目前的分類ID
     const catId = parseInt($("input[name='cat-tags']:checked").val());
     if (catId < 0) {
-        // 全部
+        // 顯示全部
         $('div[name="cat-area"]').show();
     } else {
+        // 顯示特定
         $('div[name="cat-area"]').hide();
         $(`div[name="cat-area"][data-cat-id="${catId}"]`).show();
     }
 }
 
-// 按下商品
+/**
+ * 按下商品事件
+ *
+ * @param {Event} e - 變更事件對象
+ * @returns {void}
+ */
 function onFoodCardClick(e) {
     let $modal = $('#productModal');
+    // 商品ID
     let productId = $(this).attr("data-product-id");
     // 將資訊放入modal中
     renderProductModal(productId);
     $modal.attr("data-product-id", productId);
+    // 開啟商品視窗
     $modal.modal('show');
 }
 
 // 加入購物車
 function onAddToCartBtnClick(e) {
+    // 分類ID
     const catId = $(this).attr('data-cat-id');
+    // 商品ID
     const productId = $(this).attr('data-product-id');
     addToCart(catId, productId);
 }
@@ -142,7 +159,15 @@ function showAdModal() {
 function showGuideModal() {
     $('#guideModal').modal('show');
 }
-//加入購物車
+
+/**
+ * 將商品加入購物車
+ *
+ * @param {interger} catId - 分類ID
+ * @param {interger} productId - 商品ID
+ *
+ * @returns {void}
+ */
 function addToCart(catId, productId) {
     const productName = $(".product-modal-name").text();
     const carts = getCarts();
@@ -167,7 +192,14 @@ function addToCart(catId, productId) {
     $('#productModal').modal('hide');
     updateFooterTotalPrice();
 }
-//更新購物車
+
+/**
+ * 更新購物車內容
+ *
+ * @param {interger} productIndex - 商品索引
+ *
+ * @returns {void}
+ */
 function updateToCart(productIndex) {
     const carts = getCarts();
     const qty = parseInt($('#tempProductAmount').text());
@@ -187,6 +219,8 @@ function updateToCart(productIndex) {
     showCartModal();
     updateFooterTotalPrice();
 }
+
+
 //送出購物車訂單
 function submitCart() {
     const carts = getCarts();
