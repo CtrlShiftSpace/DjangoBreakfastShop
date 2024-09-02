@@ -24,12 +24,12 @@ $(function () {
     });
 
     // 點選商品項目
-    $("#menu").on("click", ".food-card", onFoodCardClick);
+    $("#menu").on("click", ".food-card", foodCardClickHandler);
     // 按下加入購物車按鈕
-    $(".add-to-cart-btn").on('click', onAddToCartBtnClick);
+    $(".add-to-cart-btn").on('click', addToCartBtnClickHandler);
     // 按下查看購物車按鈕
-    $(".show-cart-btn").on('click', onShowCartBtnClick);
-    $(".switch-user-page").on('click', onSwitchUserPageClick);
+    $(".show-cart-btn").on('click', showCartBtnClickHandler);
+    $(".switch-user-page").on('click', switchUserPageClickHandler);
 
     // var token = "";
     // axios.post(`http://127.0.0.1:8000/api/token/`, {
@@ -85,10 +85,10 @@ function catTagsChangeHandler(e) {
  * @param {Event} e - 變更事件對象
  * @returns {void}
  */
-function onFoodCardClick(e) {
+function foodCardClickHandler(e) {
     let $modal = $('#productModal');
     // 商品ID
-    let productId = $(this).attr("data-product-id");
+    let productId = parseInt($(this).attr("data-product-id"));
     // 將資訊放入modal中
     renderProductModal(productId);
     $modal.attr("data-product-id", productId);
@@ -96,24 +96,41 @@ function onFoodCardClick(e) {
     $modal.modal('show');
 }
 
-// 加入購物車
-function onAddToCartBtnClick(e) {
+/**
+ * 按下"加入購物車"按鈕事件
+ *
+ * @param {Event} e - 觸發事件對象
+ * @returns {void}
+ */
+function addToCartBtnClickHandler(e) {
     // 分類ID
-    const catId = $(this).attr('data-cat-id');
+    const catId = parseInt($(this).attr('data-cat-id'));
     // 商品ID
-    const productId = $(this).attr('data-product-id');
+    const productId = parseInt($(this).attr('data-product-id'));
+    // 加入購物車
     addToCart(catId, productId);
 }
 
-// 查看購物車
-function onShowCartBtnClick(e) {
+/**
+ * 按下"查看購物車"按鈕事件
+ *
+ * @param {Event} e - 觸發事件對象
+ * @returns {void}
+ */
+function showCartBtnClickHandler(e) {
     let $modal = $('#cartModal');
+    // 更新顯示購物車內容modal
     renderCartModal();
     $modal.modal('show');
 }
 
-// 切換會員相關功能頁
-function onSwitchUserPageClick(e){
+/**
+ * 切換會員相關功能頁
+ *
+ * @param {Event} e  - 觸發事件對象
+ * @returns {void}
+ */
+function switchUserPageClickHandler(e){
     const toPage = $(this).attr("data-topage");
     $(".user-modal-body-page").hide();
     renderUserModal(toPage);
@@ -138,14 +155,21 @@ function init() {
     renderQrCode();
     updateFooterTotalPrice();
 }
-//前往後台
+
+/**
+ * 移動到後台
+ *
+ * @returns {void}
+ */
 function goToBackstage() {
     window.location.href = 'backstage.html';
 }
+
 //彈出歷史訂單Modal
 function showUserOrderModal() {
     getUserOrders();
 }
+
 //彈出loginModal
 function showLoginModal() {
     renderUserModal("login");
@@ -165,7 +189,6 @@ function showGuideModal() {
  *
  * @param {interger} catId - 分類ID
  * @param {interger} productId - 商品ID
- *
  * @returns {void}
  */
 function addToCart(catId, productId) {
@@ -197,7 +220,6 @@ function addToCart(catId, productId) {
  * 更新購物車內容
  *
  * @param {interger} productIndex - 商品索引
- *
  * @returns {void}
  */
 function updateToCart(productIndex) {
@@ -748,6 +770,13 @@ function chkTimer() {
 }
 
 //#region ------------------------------ 回傳HTML內容 ------------------------------
+
+/**
+ * 回傳顯示追加項目的HTML CODE
+ *
+ * @param {Array} addiIds  追加項目ID陣列
+ * @returns {String} html字串
+ */
 function getAddiOptsHtml(addiIds) {
     let addiOpts = [];
     if (addiIds.length > 0){
@@ -768,7 +797,13 @@ function getAddiOptsHtml(addiIds) {
     return addiOpts.join('');
 }
 
-
+/**
+ * 回傳購物車項目中的HTML CODE
+ *
+ * @param {Object} obj  商品資訊
+ * @param {Interger} index  商品索引
+ * @returns {String} html字串
+ */
 function getCartItemsHtml(obj, index){
     const { id, name, price, qty, comment, additems } = obj;
     return `
